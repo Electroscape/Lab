@@ -42,27 +42,4 @@ byte KeypadColPins[KEYPAD_COLS] = {2, 0, 4};     // Spalten - Steuerleitungen (a
 
 
 
-// RELAY
-enum REL_PIN {
-    REL_0_PIN,          // 0 First room light
-    REL_1_PIN,          // 1 Light 2nd room
-    REL_2_PIN,          // 2 UV Light
-    REL_3_PIN,          // 3 Alarm
-    REL_4_PIN,          // 4 Empty
-    REL_5_PIN,          // 5 Fireplace valve
-    REL_SAFE_PIC_PIN,  // 6 valve holding the painting
-    REL_7_PIN           // 7 Exit door lock
-};
-
-enum REL_INIT {
-    REL_0_INIT = 1,                    // DESCRIPTION OF THE RELAY WIRING
-    REL_1_INIT = 1,                    // DESCRIPTION OF THE RELAY WIRING
-    REL_2_INIT = 1,                    // DESCRIPTION OF THE RELAY WIRING
-    REL_3_INIT = 1,                    // DESCRIPTION OF THE RELAY WIRING
-    REL_4_INIT = 1,                    // DESCRIPTION OF THE RELAY WIRING
-    REL_5_INIT = 1,                    // DESCRIPTION OF THE RELAY WIRING
-    REL_SAFE_PIC_INIT = SAFE_HIDDEN,  // NC = Empty | COM = 24V  | NO = Valve
-    REL_7_INIT = 1                     // DESCRIPTION OF THE RELAY WIRING
-};
-
 
