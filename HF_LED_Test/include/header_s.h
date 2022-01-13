@@ -28,18 +28,23 @@ const unsigned long heartbeatFrequency = 5000;
 // Standards der Adressierung (Konvention)
 #define RELAY_I2C_ADD 0x3F   // Relay Expander																							*/
 #define OLED_I2C_ADD 0x3C    // Ist durch Hardware des OLEDs vorgegeben
-#define KEYPAD_I2C_ADD 0x39  // möglich sind 0x38, 39, 3A, 3B, 3D
+#define KEYPAD_I2C_ADD 0x38  // möglich sind 0x38, 39, 3A, 3B, 3D
 
 #define LED_TYPE_5V WS2811
 #define LED_TYPE_12V WS2812B 
-#define NUM_LEDS_5V 60
-#define NUM_LEDS_12V 60
+#define NUM_LEDS 66
 
 const byte KEYPAD_ROWS = 4;  // Zeilen
 const byte KEYPAD_COLS = 3;  // Spalten
+
 byte KeypadRowPins[KEYPAD_ROWS] = {1, 6, 5, 3};  // Zeilen  - Messleitungen
 byte KeypadColPins[KEYPAD_COLS] = {2, 0, 4};     // Spalten - Steuerleitungen (abwechselnd HIGH)
 
 
-
+const char KeypadKeys[KEYPAD_ROWS][KEYPAD_COLS] = {
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
+};
 
