@@ -1,13 +1,13 @@
 /**
-*   2CP - TeamEscape - Engineering
-*   Author Martin Pek & Abdullah Saei
-*
-*   - use namespace
-*   - Modified Serial outputs
-*   - Optimize initialization delay to smooth restarts.
-*   - Locking after correct solution.
-*
-*/
+ * @file BrainHat.ino
+ * @author Martin Pek (martin.pek@web.de)
+ * @brief 
+ * @version 0.1
+ * @date 2022-05-13
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 
 /**************************************************************************/
 // Setting Configurations
@@ -16,6 +16,7 @@
 #include <stb_common.h>
 #include <stb_led.h>
 #include <avr/wdt.h>
+#include <stb_rfid.h>
 
 
 STB STB;
@@ -23,6 +24,12 @@ STB STB;
 PCF8574 relay;
 
 Adafruit_NeoPixel LED_Strips[STRIPE_CNT];
+
+#define rfidDisable 1
+
+Adafruit_PN532 RFID_0(RFID_SSPins[0]);
+Adafruit_PN532 RFID_READERS[1] = {RFID_0};
+
 
 const long int red = LED_Strips[0].Color(255,0,0);
 const long int green = LED_Strips[0].Color(0,255,0);
@@ -40,32 +47,56 @@ void setup() {
 
     wdt_reset();
 
+#ifndef rfidDisable
+    STB_RFID::RFIDInit(RFID_0);
+    wdt_reset();
+#endif
+
+/*
     STB_LED::setAllStripsToClr(LED_Strips, green);
     delay(2000);
     STB_LED::setAllStripsToClr(LED_Strips, red);
     delay(2000);
     STB_LED::setAllStripsToClr(LED_Strips, blue);
     delay(2000);
+    */
     
     STB.printSetupEnd();
     Serial.setTimeout(100);
-    Serial.begin(9600);
     digitalWrite(MAX_CTRL_PIN, MAX485_READ);
+    wdt_reset();
 }
 
 /*======================================
 //===LOOP==============================
 //====================================*/
 void loop() {
-    // STB.defaultOled.println(String(Serial.available()));
-    if (Serial.available() > 0) {
-        STB.defaultOled.println("Receiving: ");
-        STB.defaultOled.println(String(Serial.read()));
+
+#ifndef rfidDisable
+    uint8_t data[16];
+    if (STB_RFID::cardRead(RFID_READERS[0], data, 1)) {
+        STB.dbgln((char *) data);
     }
+#endif
+
+    /*
+    digitalWrite(MAX_CTRL_PIN, MAX485_WRITE);
+    Serial.write("FUCK");
+    Serial.flush();
+    digitalWrite(MAX_CTRL_PIN, MAX485_READ);
+    delay(5000);
+    */
+    /*
+    while (Serial.available() > 0) {
+        STB.defaultOled.println("Receiving: ");
+        STB.defaultOled.println(String(Serial.readString()));
+    }
+    */
+
     // STB.defaultOled.println(String(Serial.read()));
     // if (Serial.available ()) {
     //    STB.dbgln("stuff available");
     
-
+    delay(100);
     wdt_reset();
 }
