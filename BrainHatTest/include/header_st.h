@@ -16,6 +16,7 @@ String relayCode = String("UVL");
 #define LCD_I2C_ADD 0x27    // Predefined by hardware
 #define OLED_ADD 0x3C   // Predefined by hardware
 #define RELAY_I2C_ADD 0x3F  // Relay Expander
+#define KEYPAD_ADD 0x38
 
 #define CLR_ORDER NEO_RGB
 
@@ -34,6 +35,8 @@ String relayCode = String("UVL");
 #define RFID_4_SS_PIN           2     /* Per Konvention ist dies RFID-Port 4                                */
 
 const byte RFID_SSPins[]  = {RFID_1_SS_PIN};
+
+char secret_password[] = "5314";
 
 
 int ledCnts[STRIPE_CNT] = {9};
