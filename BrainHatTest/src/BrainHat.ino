@@ -60,15 +60,17 @@ Keypad_I2C Keypad(makeKeymap(KeypadKeys), KeypadRowPins, KeypadColPins, KEYPAD_R
 // Passwort
 Password passKeypad = Password(secret_password);
 
+int testVal = 0;
 
 void setup() {
     STB.begin();
-    STB.dbgln("v1");
+    STB.dbgln("v1.1");
     Serial.println("WDT endabled");
     wdt_enable(WDTO_8S);
     if (STB_LED::ledInit(LED_Strips, ledCnts, ledPins, NEO_BRG)) {Serial.println("LED: OK!");} else {Serial.println("LED: FAILED!");}
 
     STB.i2cScanner();
+    STB.rs485SetSlaveAddr(0);
 
     if (keypadInit()) {
         Serial.print(F(" ok\n"));
@@ -234,7 +236,8 @@ void loop() {
     // STB.defaultOled.println(String(Serial.read()));
     // if (Serial.available ()) {
     //    STB.dbgln("stuff available");
-    
+    STB.rs485Write("Brain response" + String(testVal));
+    testVal++;
     delay(100);
     wdt_reset();
 }
