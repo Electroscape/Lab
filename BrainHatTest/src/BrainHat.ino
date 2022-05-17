@@ -216,28 +216,23 @@ void loop() {
     }
 #endif
 
-    Keypad.getKey();
-    keypadReset();
-
-    /*
-    digitalWrite(MAX_CTRL_PIN, MAX485_WRITE);
-    Serial.write("FUCK");
-    Serial.flush();
-    digitalWrite(MAX_CTRL_PIN, MAX485_READ);
-    delay(5000);
-    */
-    /*
+    // Keypad.getKey();
+    // keypadReset();
+    
     while (Serial.available() > 0) {
-        STB.defaultOled.println("Receiving: ");
-        STB.defaultOled.println(String(Serial.readString()));
+        STB.defaultOled.println("Received: ");
+        String rcvd = Serial.readString();
+        STB.defaultOled.println(rcvd);
     }
-    */
 
-    // STB.defaultOled.println(String(Serial.read()));
-    // if (Serial.available ()) {
-    //    STB.dbgln("stuff available");
+    delay(100);
+    
     STB.rs485Write("Brain response" + String(testVal));
     testVal++;
-    delay(100);
+
+    if (testVal > 1000) {
+        testVal = 0;
+    }
+
     wdt_reset();
 }
