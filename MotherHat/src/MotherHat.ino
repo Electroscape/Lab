@@ -19,7 +19,7 @@ PCF8574 reset;
 
 void setup() {
     STB.begin();
-    STB.RS485SetToMaster();
+    STB.rs485SetToMaster();
     STB.dbgln("sth sth");
     Serial.println("WDT endabled");
     wdt_enable(WDTO_8S);
@@ -40,6 +40,6 @@ void setup() {
 //===LOOP==============================
 //====================================*/
 void loop() {
-    STB.RS485PerformPoll();
+    STB.rs485PerformPoll();
     wdt_reset();
 }
