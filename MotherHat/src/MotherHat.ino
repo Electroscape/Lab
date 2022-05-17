@@ -1,11 +1,6 @@
 /**
 *   2CP - TeamEscape - Engineering
-*   Author Martin Pek & Abdullah Saei
-*
-*   - use namespace
-*   - Modified Serial outputs
-*   - Optimize initialization delay to smooth restarts.
-*   - Locking after correct solution.
+*   Author Martin Pek
 *
 */
 
@@ -24,6 +19,7 @@ PCF8574 reset;
 
 void setup() {
     STB.begin();
+    STB.RS485SetToMaster();
     STB.dbgln("sth sth");
     Serial.println("WDT endabled");
     wdt_enable(WDTO_8S);
@@ -38,21 +34,12 @@ void setup() {
     
     wdt_reset();
     STB.printSetupEnd();
-    digitalWrite(MAX_CTRL_PIN, MAX485_WRITE);
 }
 
 /*======================================
 //===LOOP==============================
 //====================================*/
 void loop() {
-    Serial.println("\n");
-    Serial.println("Mother");
-    Serial.println("Tell your children\n");
-    Serial.println("Not to walk my way\n");
-    Serial.flush();
-    Serial.println("Tell your children\n");
-    Serial.println("not to hear my words\n");
-    Serial.flush();
+    STB.RS485PerformPoll();
     wdt_reset();
-    delay(1000);
 }
