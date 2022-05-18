@@ -46,7 +46,7 @@ void setup() {
 //====================================*/
 void loop() {
     
-    while (Serial.available() > 0) {
+    if (Serial.available() > 0) {
         STB.defaultOled.println("Received: ");
         String rcvd = Serial.readString();
         STB.defaultOled.println(rcvd);
