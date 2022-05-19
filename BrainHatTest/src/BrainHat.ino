@@ -29,7 +29,7 @@ void setup() {
     STB.begin();
     STB.dbgln("v1.1");
     Serial.println("WDT endabled");
-    wdt_enable(WDTO_8S);
+    // wdt_enable(WDTO_8S);
 
     STB.i2cScanner();
     STB.rs485SetSlaveAddr(0);
@@ -46,12 +46,12 @@ void setup() {
 //====================================*/
 void loop() {
     
-    if (Serial.available() > 0) {
-        STB.defaultOled.println("Received: ");
-        String rcvd = Serial.readString();
-        STB.defaultOled.println(rcvd);
+    // this can be used to fwd the serial input for the master to an usb port on the RPI
+    if (Serial.available()) {
+        Serial.write(Serial.read());
     }
 
+    /*
     delay(100);
     
     STB.rs485Write("Brain response" + String(testVal));
@@ -60,6 +60,7 @@ void loop() {
     if (testVal > 1000) {
         testVal = 0;
     }
+    */
 
-    wdt_reset();
+    // wdt_reset();
 }
