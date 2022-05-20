@@ -45,22 +45,20 @@ void setup() {
 //===LOOP==============================
 //====================================*/
 void loop() {
-    
-    // this can be used to fwd the serial input for the master to an usb port on the RPI
+
+    /*
     if (Serial.available()) {
         Serial.write(Serial.read());
     }
+    */
 
-    /*
-    delay(100);
-    
-    STB.rs485Write("Brain response" + String(testVal));
+
+    STB.rs485Write("!Relay_" + String(testVal) + "_0_");
     testVal++;
 
-    if (testVal > 1000) {
+    if (testVal >= 8) {
         testVal = 0;
     }
-    */
 
     // wdt_reset();
 }

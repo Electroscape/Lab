@@ -14,7 +14,7 @@
 
 STB STB;
 
-PCF8574 relay;
+// PCF8574 relay;
 PCF8574 reset;
 
 void setup() {
@@ -29,7 +29,7 @@ void setup() {
         reset.pinMode(i, OUTPUT);
     }
 
-    STB.relayInit(relay, relayPinArray, relayInitArray, REL_AMOUNT);
+    // STB.relayInit(relay, relayPinArray, relayInitArray, REL_AMOUNT);
     
     wdt_reset();
     STB.printSetupEnd();
@@ -42,5 +42,4 @@ void setup() {
 void loop() {
     STB.rs485PerformPoll();
     wdt_reset();
-    // STB.printWithHeader("blbl");
 }
