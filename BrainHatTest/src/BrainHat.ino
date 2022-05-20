@@ -53,11 +53,11 @@ void loop() {
     */
 
 
-    STB.rs485Write("!Relay_" + String(testVal) + "_0_");
-    testVal++;
-
-    if (testVal >= 8) {
-        testVal = 0;
+    if (STB.rs485Write("!Relay_" + String(testVal) + "_0_")) {
+        testVal++;
+        if (testVal >= 8) {
+            testVal = 0;
+        }
     }
 
     // wdt_reset();
