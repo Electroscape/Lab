@@ -28,8 +28,6 @@ void setup() {
     for (int i = 0; i < 8; i++) {
         reset.pinMode(i, OUTPUT);
     }
-
-    // STB.relayInit(relay, relayPinArray, relayInitArray, REL_AMOUNT);
     
     wdt_reset();
     STB.printSetupEnd();
