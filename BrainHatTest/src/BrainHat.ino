@@ -15,17 +15,17 @@
 
 #include <Adafruit_PN532.h>
 #include <stb_oled.h>
+#include <stb_common.h>
+
+STB MYSTB;
 
 Adafruit_PN532 reader(RFID_SSPins[0]);
 SSD1306AsciiWire defaultOled;
 
 void setup() {
 
+    MYSTB.begin();
 
-    Serial.begin(115200);
-
-    STB_OLED::oledInit(&defaultOled , SH1106_128x64);
-    defaultOled.setFont(Adafruit5x7);
 
     reader.begin();
     reader.setPassiveActivationRetries(5);
@@ -69,25 +69,30 @@ bool cardRead() {
 
     success = reader.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, timeout);
     if (!success) {
-        defaultOled.println("No card");
+        MYSTB.dbgln("No card");
         return false;
     }
 
+    MYSTB.dbgln("CARD");
+    return true;
+    /*
+
     success = reader.mifareclassic_AuthenticateBlock(uid, uidLength, blockNumber, 0, keya);
     if (!success) {
-        defaultOled.println("Auth failed"); return false;
+        MYSTB.dbgln("Auth failed"); return false;
     }
 
     success = reader.mifareclassic_ReadDataBlock(datablock, data);
     if (!success) {
-        defaultOled.println("read failed"); return false;
+        MYSTB.dbgln("read failed"); return false;
     }
     if (strlen((char *) data) == 0) {
-        defaultOled.println("read empty datablock -> invalid");
+        MYSTB.dbgln("read empty datablock -> invalid");
         return false;
     } 
-    defaultOled.println((char *) data);
+    MYSTB.dbgln((char *) data);
     return true;
+    */
 }
 
 
