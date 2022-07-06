@@ -13,56 +13,87 @@
 // Setting Configurations
 #include "header_st.h"
 
-#include <stb_common.h>
-#include <stb_led.h>
-#include <avr/wdt.h>
-#include <stb_rfid.h>
-#include <Keypad_I2C.h>
-#include <Password.h> 
+#include <Adafruit_PN532.h>
+#include <stb_oled.h>
 
-
-STB STB;
-unsigned long timestamp = millis();
-int testVal = 0;
+Adafruit_PN532 reader(RFID_SSPins[0]);
+SSD1306AsciiWire defaultOled;
 
 void setup() {
-    STB.begin();
-    STB.dbgln("v1.1");
-    Serial.println("WDT endabled");
-    // wdt_enable(WDTO_8S);
 
-    STB.i2cScanner();
-    STB.rs485SetSlaveAddr(0);
-    
-    STB.printSetupEnd();
-    Serial.setTimeout(100);
-    wdt_reset();
+
+    Serial.begin(115200);
+
+    STB_OLED::oledInit(&defaultOled , SH1106_128x64);
+    defaultOled.setFont(Adafruit5x7);
+
+    reader.begin();
+    reader.setPassiveActivationRetries(5);
+
+    int retries = 0;
+    while (true) {
+        uint32_t versiondata = reader.getFirmwareVersion();
+        if (!versiondata) {
+            Serial.print(F("Didn't find PN53x board\n"));
+            if (retries > 5) {
+                Serial.print(F("PN532 startup timed out"));
+                delay(5);
+            }
+        } else {
+            Serial.print(F("Found chip PN5"));
+            Serial.println((versiondata >> 24) & 0xFF, HEX);
+            Serial.print(F("Firmware ver. "));
+            Serial.print((versiondata >> 16) & 0xFF, DEC);
+            Serial.print('.');
+            Serial.println((versiondata >> 8) & 0xFF, DEC);
+            break;
+        }
+        retries++;
+    }
+    reader.SAMConfig();
+    delay(50);
+    Serial.print(F("\nRFID init ... Successful \n"));
 }
 
+
+bool cardRead() {
+    uint8_t data[16];
+    uint8_t success;
+    uint8_t uid[] = {0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
+    uint8_t uidLength;
+    uint8_t keya[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+    memset(data, 0, 16);
+    uint16_t timeout = 150;
+    uint32_t blockNumber = 1;
+    uint8_t datablock = 1;
+
+    success = reader.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, timeout);
+    if (!success) {
+        defaultOled.println("No card");
+        return false;
+    }
+
+    success = reader.mifareclassic_AuthenticateBlock(uid, uidLength, blockNumber, 0, keya);
+    if (!success) {
+        defaultOled.println("Auth failed"); return false;
+    }
+
+    success = reader.mifareclassic_ReadDataBlock(datablock, data);
+    if (!success) {
+        defaultOled.println("read failed"); return false;
+    }
+    if (strlen((char *) data) == 0) {
+        defaultOled.println("read empty datablock -> invalid");
+        return false;
+    } 
+    defaultOled.println((char *) data);
+    return true;
+}
 
 
 /*======================================
 //===LOOP==============================
 //====================================*/
 void loop() {
-    
-    // this can be used to fwd the serial input for the master to an usb port on the RPI
-    /*
-    if (Serial.available()) {
-        Serial.write(Serial.read());
-    }
-    */
-
-    /*
-    for (int testVal = 0; testVal < 4; testVal++) {
-        STB.rs485AddToBuffer("Brain response" + String(testVal));
-    }
-    STB.rs485SendBuffer();
-    */
-
-    STB.rs485AddToBuffer(String(int(millis()-timestamp)));
-    timestamp = millis();
-    STB.rs485SendBuffer();
-
-    // wdt_reset();
+  cardRead();
 }
