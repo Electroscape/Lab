@@ -42,9 +42,9 @@ void setup() {
 
 
 
-    Mother.setFlag(STB, 0, cmdFlags::LED, true);
-    Mother.setFlag(STB, 0, cmdFlags::RFID, true);
-    Mother.setFlag(STB, 0, cmdFlags::OLED, true);
+    Mother.setFlag(STB, 0, cmdFlags::ledFlag, true);
+    Mother.setFlag(STB, 0, cmdFlags::rfidFlag, true);
+    Mother.setFlag(STB, 0, cmdFlags::oledFlag, true);
     Mother.flagsCompleted(STB, 0);
 
     // using the wdt to reboot

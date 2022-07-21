@@ -37,19 +37,19 @@ void setup() {
     STB.rs485SetSlaveAddr(0);
     BRAIN.receiveFlags(STB);
 
-    if (BRAIN.flags[LED]) {
+    if (BRAIN.flags[ledFlag]) {
         STB.dbgln("doing LED init");
         STB_LED::ledInit(LED_Strips, 1, ledCnts, ledPins, NEO_BRG);
         STB_LED::setAllStripsToClr(LED_Strips, 1, green);
     }
 
-    if (BRAIN.flags[RFID]) {
+    if (BRAIN.flags[rfidFlag]) {
         STB.dbgln("doing RFID init");
         Adafruit_PN532 RFID_0(PN532_SCK, PN532_MISO, PN532_MOSI, RFID_1_SS_PIN);
         Adafruit_PN532 RFID_READERS[1] = {RFID_0};
     }
 
-    if (BRAIN.flags[OLED]) {
+    if (BRAIN.flags[oledFlag]) {
         STB.dbgln("doing Oled init");
         STB_OLED::oledInit(&secondOled , SH1106_128x64, 61);
     }
