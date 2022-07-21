@@ -42,8 +42,8 @@ void setup() {
 
 
 
-    Mother.setFlag(STB, 0, cmdFlags::RFID, true);
     Mother.setFlag(STB, 0, cmdFlags::LED, true);
+    Mother.setFlag(STB, 0, cmdFlags::RFID, true);
     Mother.setFlag(STB, 0, cmdFlags::OLED, true);
     Mother.flagsCompleted(STB, 0);
 
