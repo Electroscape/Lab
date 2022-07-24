@@ -20,10 +20,23 @@
 
 
 STB STB;
+STB_BRAIN BRAIN;
 
 
 void setup() {
     STB.begin();
+    // STB.defaultOled.setRow(uint8_t row);
+    STB.defaultOled.clear();
+    STB.defaultOled.println("what the fuck");
+    STB.defaultOled.println("Testq2");
+    STB.defaultOled.println("Testq3");
+    STB.defaultOled.println("Testq4");
+    STB.defaultOled.println("Testq5");
+    // STB.defaultOled.setScroll(false);
+
+    STB_OLED::clearAbove(STB.defaultOled, (uint8_t) 3);
+    // without teh space the w hat is split into 2 lines ...
+    STB.defaultOled.println(" what the fuck");
 }
 
 
@@ -31,4 +44,7 @@ void setup() {
 //===LOOP==============================
 //====================================*/
 void loop() {
+    // STB.defaultOled.setRow((uint8_t) 1);
+    // STB.defaultOled.println("newline");
+    delay(500);
 }
