@@ -28,28 +28,20 @@ void setup() {
 
     Serial.println("WDT endabled");
     wdt_enable(WDTO_8S);
-
-
-    /*
-    resetPCF.begin(0x3D);
-    for (int i = 0; i < 8; i++) {
-        resetPCF.pinMode(i, OUTPUT);
-        resetPCF.digitalWrite(i,1);
-    }
-    */
     
     wdt_reset();
 
-    /*
     Mother.setFlag(STB, 0, cmdFlags::ledFlag, true);
     Mother.setFlag(STB, 0, cmdFlags::rfidFlag, true);
     Mother.setFlag(STB, 0, cmdFlags::oledFlag, true);
     Mother.flagsCompleted(STB, 0);
-    */
 
     int argsCnt = 2;
     // first value is the index of the Stripe, second value is the amount of LEDs on said Stripe
     int ledCount[argsCnt] = {1, 2};
+    Mother.sendSetting(STB, 0, settingCmds::ledCount, ledCount, argsCnt);
+    ledCount[0] = 3;
+    ledCount[1] = 1;
     Mother.sendSetting(STB, 0, settingCmds::ledCount, ledCount, argsCnt);
     Mother.settingsCompleted(STB, 0);
 
