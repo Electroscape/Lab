@@ -32,33 +32,23 @@ void setup() {
     STB.begin();
 
     STB.rs485SetSlaveAddr(0);
-    BRAIN.receiveFlags(STB);
+    // BRAIN.receiveFlags(STB);
     STB.defaultOled.setScrollMode(SCROLL_MODE_AUTO);
 
-    BRAIN.receiveSettings(STB);
+    // BRAIN.receiveSettings(STB);
 
-    /*
-    somehow row 1 is a duplicate of row, some inor bug here
+    // col 0 is the cmd type 0 is for setLedamount aka settingCmds::ledCount;
+    BRAIN.settings[0][0] = settingCmds::ledCount;
+    // col 1 is the PWM index
+    BRAIN.settings[0][1] = 0;
+    // col 2 is the amount of leds
+    BRAIN.settings[0][2] = 60;
 
-    STB.dbgln("settings matrix");
-    STB.dbgln(String(BRAIN.settings[0][0]));
-    STB.dbgln(String(BRAIN.settings[0][1]));
-    STB.dbgln(String(BRAIN.settings[0][2]));
-    STB.dbgln("Setting Row 1");
-    STB.dbgln(String(BRAIN.settings[1][0]));
-    STB.dbgln(String(BRAIN.settings[1][1]));
-    STB.dbgln(String(BRAIN.settings[1][2]));
-    STB.dbgln("Setting Row 3");
-    STB.dbgln(String(BRAIN.settings[3][0]));
-    STB.dbgln(String(BRAIN.settings[3][1]));
-    STB.dbgln(String(BRAIN.settings[3][2]));
-    */
-
-    if (BRAIN.flags[ledFlag]) {
-        STB.dbgln("doing LED init");
+    if (BRAIN.flags[ledFlag] || true) {
+        STB.dbgln("doing LED init v2");
         LEDS.ledInit(BRAIN.settings);
         delay(100);
-        // LEDS.setAllStripsToClr(LEDS.Strips[0].Color(100, 100,100));
+        LEDS.setAllStripsToClr(LEDS.Strips[0].Color(100, 100, 100));
     }
 
     if (BRAIN.flags[rfidFlag]) {
