@@ -43,12 +43,31 @@ void setup() {
     BRAIN.settings[0][1] = 0;
     // col 2 is the amount of leds
     BRAIN.settings[0][2] = 60;
+    BRAIN.settings[1][0] = settingCmds::ledCount;
+    // col 1 is the PWM index
+    BRAIN.settings[1][1] = 1;
+    // col 2 is the amount of leds
+    BRAIN.settings[1][2] = 60;
+    BRAIN.settings[2][0] = settingCmds::ledCount;
+    // col 1 is the PWM index
+    BRAIN.settings[2][1] = 2;
+    // col 2 is the amount of leds
+    BRAIN.settings[2][2] = 60;
+    BRAIN.settings[3][0] = settingCmds::ledCount;
+    // col 1 is the PWM index
+    BRAIN.settings[3][1] = 3;
+    // col 2 is the amount of leds
+    BRAIN.settings[3][2] = 60;
 
     if (BRAIN.flags[ledFlag] || true) {
         STB.dbgln("doing LED init v2");
         LEDS.ledInit(BRAIN.settings);
         delay(100);
-        LEDS.setAllStripsToClr(LEDS.Strips[0].Color(100, 100, 100));
+        // LEDS.setAllStripsToClr(LEDS.Strips[0].Color(205, 225, 255));
+        LEDS.setStripToClr(0, LEDS.Strips[0].Color(120, 0, 0));
+        LEDS.setStripToClr(1, LEDS.Strips[1].Color(200, 255, 220));
+        LEDS.setStripToClr(2, LEDS.Strips[2].Color(40, 50, 255));
+        LEDS.setStripToClr(3, LEDS.Strips[3].Color(205, 225, 255));
     }
 
     if (BRAIN.flags[rfidFlag]) {
@@ -63,6 +82,7 @@ void setup() {
     }
 
     STB.dbgln("setup ended");
+    wdt_disable();
 }
 
 
@@ -71,4 +91,15 @@ void setup() {
 //====================================*/
 void loop() {
 
+}
+
+
+void toggleLight(int index) {
+    LEDS.setAllStripsToClr(LEDS.Strips[0].Color(0, 0, 0));
+    switch (index) {
+        case 0: LEDS.setStripToClr(0, LEDS.Strips[0].Color(120, 0, 0)); break;
+        case 1: LEDS.setStripToClr(1, LEDS.Strips[0].Color(200, 255, 220)); break;
+        case 2: LEDS.setStripToClr(2, LEDS.Strips[0].Color(40, 50, 255)); break;
+        case 3: LEDS.setStripToClr(3, LEDS.Strips[0].Color(205, 225, 255)); break;
+    }
 }
