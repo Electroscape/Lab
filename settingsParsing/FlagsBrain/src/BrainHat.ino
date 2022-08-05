@@ -31,8 +31,9 @@ SSD1306AsciiWire secondOled;
 
 int stage = 0;
 int modi = 0;
+int const modiCnt = 3;
 
-long int clrSets[4][3] = {
+long int clrSets[4][modiCnt] = {
     {LEDS.Strips[0].Color(120, 0, 0), LEDS.Strips[0].Color(75, 75, 75), LEDS.Strips[0].Color(60, 0, 0)},
     {LEDS.Strips[0].Color(200, 255, 220), LEDS.Strips[0].Color(40, 52, 44), LEDS.Strips[0].Color(143, 160, 180)},
     {LEDS.Strips[0].Color(40, 50, 255), LEDS.Strips[0].Color(255, 0, 0), LEDS.Strips[0].Color(143, 160, 180)},
@@ -129,24 +130,31 @@ void loop() {
 
 void toggleLight(int index) {
     LEDS.setAllStripsToClr(LEDS.Strips[0].Color(0, 0, 0));
-    switch (index) {
-        case 0: LEDS.setStripToClr(index, clrSets[index][modi]); break;
-        case 1: LEDS.setStripToClr(index, clrSets[index][modi]); break;
-        case 2: LEDS.setStripToClr(index, clrSets[index][modi]); break;
-        case 3: LEDS.setStripToClr(index, clrSets[index][modi]); break;
-        case 4: 
-            Serial.println("doing case 4");
-            LEDS.setStripToClr(0, clrSets[0][modi]);
-            delay(15);
-            LEDS.setStripToClr(1, clrSets[1][modi]);
-            delay(15);
-            LEDS.setStripToClr(2, clrSets[2][modi]);
-            delay(15);
-            LEDS.setStripToClr(3, clrSets[3][modi]); 
-        break;
-        default: break;
-
+    if (modi < modiCnt) {
+        switch (index) {
+            case 0: LEDS.setStripToClr(index, clrSets[index][modi]); break;
+            case 1: LEDS.setStripToClr(index, clrSets[index][modi]); break;
+            case 2: LEDS.setStripToClr(index, clrSets[index][modi]); break;
+            case 3: LEDS.setStripToClr(index, clrSets[index][modi]); break;
+            case 4: 
+                Serial.println("doing case 4");
+                LEDS.setStripToClr(0, clrSets[0][modi]);
+                delay(15);
+                LEDS.setStripToClr(1, clrSets[1][modi]);
+                delay(15);
+                LEDS.setStripToClr(2, clrSets[2][modi]);
+                delay(15);
+                LEDS.setStripToClr(3, clrSets[3][modi]); 
+            break;
+            default: break;
+        }
+    } else {
+        Serial.println("toggling whites");
+        if (index < 4) {
+            LEDS.setStripToClr(index, LEDS.Strips[0].Color(255, 255, 255));
+        }
     }
+   
     if (stage > 4) {
         stage = -1;
     }
@@ -163,7 +171,7 @@ void toggleModi() {
             toggleLight(stage);
         break;
     }
-    if (modi > 2) {
+    if (modi > 3) {
         modi = 0;
     }
     delay(100);
