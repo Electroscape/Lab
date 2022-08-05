@@ -19,12 +19,25 @@
 #include <stb_brain.h>
 #include <stb_led.h>
 #include <stb_rfid.h>
+#include <PCF8574.h>
 
 STB STB;
 STB_BRAIN BRAIN;
 STB_LED LEDS;
 
+PCF8574 button;
+
 SSD1306AsciiWire secondOled;
+
+int stage = 0;
+int modi = 0;
+
+long int clrSets[4][3] = {
+    {LEDS.Strips[0].Color(120, 0, 0), LEDS.Strips[0].Color(75, 75, 75), LEDS.Strips[0].Color(60, 0, 0)},
+    {LEDS.Strips[0].Color(200, 255, 220), LEDS.Strips[0].Color(40, 52, 44), LEDS.Strips[0].Color(143, 160, 180)},
+    {LEDS.Strips[0].Color(40, 50, 255), LEDS.Strips[0].Color(255, 0, 0), LEDS.Strips[0].Color(143, 160, 180)},
+    {LEDS.Strips[0].Color(205, 225, 255), LEDS.Strips[0].Color(205, 225, 255), LEDS.Strips[0].Color(0, 0, 0)}
+};
 
 
 void setup() {
@@ -83,6 +96,10 @@ void setup() {
 
     STB.dbgln("setup ended");
     wdt_disable();
+
+    button.pinMode(0, INPUT);
+    button.pinMode(1, INPUT);
+    button.begin(0x38);
 }
 
 
@@ -91,15 +108,63 @@ void setup() {
 //====================================*/
 void loop() {
 
+    if (button.digitalRead(0) == HIGH) {
+        Serial.print("stage incremented to: ");
+        Serial.println(String(stage));
+        toggleLight(stage);
+        stage++;
+        delay(200);
+    }
+
+    if (button.digitalRead(1) == HIGH) {
+        Serial.print("modi incremented to: ");
+        Serial.println(String(modi));
+        toggleModi();
+        delay(200);
+    }
+
+
 }
 
 
 void toggleLight(int index) {
     LEDS.setAllStripsToClr(LEDS.Strips[0].Color(0, 0, 0));
     switch (index) {
-        case 0: LEDS.setStripToClr(0, LEDS.Strips[0].Color(120, 0, 0)); break;
-        case 1: LEDS.setStripToClr(1, LEDS.Strips[0].Color(200, 255, 220)); break;
-        case 2: LEDS.setStripToClr(2, LEDS.Strips[0].Color(40, 50, 255)); break;
-        case 3: LEDS.setStripToClr(3, LEDS.Strips[0].Color(205, 225, 255)); break;
+        case 0: LEDS.setStripToClr(index, clrSets[index][modi]); break;
+        case 1: LEDS.setStripToClr(index, clrSets[index][modi]); break;
+        case 2: LEDS.setStripToClr(index, clrSets[index][modi]); break;
+        case 3: LEDS.setStripToClr(index, clrSets[index][modi]); break;
+        case 4: 
+            Serial.println("doing case 4");
+            LEDS.setStripToClr(0, clrSets[0][modi]);
+            delay(15);
+            LEDS.setStripToClr(1, clrSets[1][modi]);
+            delay(15);
+            LEDS.setStripToClr(2, clrSets[2][modi]);
+            delay(15);
+            LEDS.setStripToClr(3, clrSets[3][modi]); 
+        break;
+        default: break;
+
     }
+    if (stage > 4) {
+        stage = -1;
+    }
+    delay(100);
+}
+
+
+void toggleModi() {
+    modi++;
+    switch (modi) {
+        case 3: LEDS.setAllStripsToClr(LEDS.Strips[0].Color(255, 255, 255)); break;
+        default: 
+            stage = 4;
+            toggleLight(stage);
+        break;
+    }
+    if (modi > 2) {
+        modi = 0;
+    }
+    delay(100);
 }
