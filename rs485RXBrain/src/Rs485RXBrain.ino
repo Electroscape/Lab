@@ -21,10 +21,8 @@
 #include <stb_rfid.h>
 
 STB STB;
-STB_BRAIN BRAIN;
-STB_LED LEDS;
+int rcvd;
 
-SSD1306AsciiWire secondOled;
 
 
 void setup() {
@@ -40,6 +38,9 @@ void setup() {
 //====================================*/
 void loop() {
     if (Serial.available()) {
-        Serial.write(Serial.read());
+        rcvd = Serial.read();
+        if (rcvd != 0) {
+            Serial.write(rcvd);
+        }
     }
 }
