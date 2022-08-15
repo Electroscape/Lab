@@ -65,3 +65,25 @@ void loop() {
     wdt_reset();
     STB.rs485PerformPoll();
 }
+
+
+void RFIDPolling() {
+    int lineCnt = 0;
+    STB.rs485PerformPoll();
+
+    while (STB.rs485RcvdNextLn() && lineCnt++ < 5) {
+
+        char* ptr = strtok(STB.rcvdPtr, "_");
+        if (strcmp("!RFID", ptr) != 0) {
+            continue; // skip all the other checks since its not RFID cmd
+        }
+        ptr = strtok(NULL, "_");
+        if (ptr != NULL) {
+            STB.dbgln("card detected: "); 
+            STB.dbgln(ptr);
+        }
+    }
+
+    lineCnt = 0;
+    wdt_reset();
+}
