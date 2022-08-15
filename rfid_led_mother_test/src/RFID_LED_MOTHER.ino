@@ -63,7 +63,7 @@ void setup() {
 
 void loop() {
     wdt_reset();
-    STB.rs485PerformPoll();
+    RFIDPolling();
 }
 
 
@@ -73,14 +73,23 @@ void RFIDPolling() {
 
     while (STB.rs485RcvdNextLn() && lineCnt++ < 5) {
 
-        char* ptr = strtok(STB.rcvdPtr, "_");
-        if (strcmp("!RFID", ptr) != 0) {
+        STB.dbgln(STB.rcvdPtr);
+
+        if (strncmp(Mother.keyWords.rfidKeyword, STB.rcvdPtr, strlen(Mother.keyWords.rfidKeyword)) != 0) {
+            STB.dbgln("continuing");
             continue; // skip all the other checks since its not RFID cmd
         }
+
+        char* ptr = strtok(STB.rcvdPtr, "_");
         ptr = strtok(NULL, "_");
         if (ptr != NULL) {
             STB.dbgln("card detected: "); 
             STB.dbgln(ptr);
+        }
+
+        if (strncmp(rfidSolutions[STB.rs485getPolledSlave()], ptr, strlen(rfidSolutions[STB.rs485getPolledSlave()])) == 0) {    
+            STB.dbg("correct card on slave");
+            STB.dbgln(String(STB.rs485getPolledSlave()));
         }
     }
 
