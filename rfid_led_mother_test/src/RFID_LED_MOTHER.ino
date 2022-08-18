@@ -12,6 +12,7 @@
 #include <stb_common.h>
 #include <avr/wdt.h>
 #include <stb_mother.h>
+#include <stb_mother_ledCmds.h>
 
 
 STB STB;
@@ -57,6 +58,7 @@ void setup() {
     */
 
     STB.dbgln("Completed settings");
+    initLeds();
     STB.printSetupEnd();
 }
 
@@ -67,6 +69,16 @@ void loop() {
 }
 
 
+void initLeds() {
+    for (int i=0; i<RFID_LED_AMOUNT; i++) {
+        LED_CMDS::setToClr(STB, i, LED_CMDS::clrRed, 50);
+    }
+}
+
+
+/**
+ * @brief handles outputs from Brain with RFIDs, sets them to green when a predefined card has beeen presented
+ */
 void RFIDPolling() {
     int lineCnt = 0;
     STB.rs485PerformPoll();
@@ -90,6 +102,7 @@ void RFIDPolling() {
         if (strncmp(rfidSolutions[STB.rs485getPolledSlave()], ptr, strlen(rfidSolutions[STB.rs485getPolledSlave()])) == 0) {    
             STB.dbg("correct card on slave");
             STB.dbgln(String(STB.rs485getPolledSlave()));
+            LED_CMDS::setToClr(STB, STB.rs485getPolledSlave(), LED_CMDS::clrGreen, 50);
         }
     }
 
