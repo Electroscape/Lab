@@ -6,11 +6,12 @@
 
 int ledCnts[STRIPE_CNT] = {9};
 
-char rfidSolutions[4][5] = {"AH\0", "RES\0", "GF\0", "SD\0"};
-
-
 // RFIDs
-#define RFID_AMOUNT 8
+#define RFID_LED_AMOUNT 4
+char rfidSolutions[RFID_LED_AMOUNT][5] = {"GF\0", "SD\0", "AH\0", "GF\0"};
+
+
+
 
 // == constants
 // RELAY

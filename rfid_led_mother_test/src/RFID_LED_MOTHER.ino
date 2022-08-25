@@ -24,40 +24,27 @@ void setup() {
 
     STB.i2cScanner();
 
-    STB.rs485SetToMaster();
-    STB.rs485SetSlaveCount(4);
+    // STB.rs485SetToMaster();
+    Mother.rs485SetSlaveCount(1);
 
-    Serial.println("WDT endabled");
+    Serial.println(F("WDT endabled"));
     wdt_enable(WDTO_8S);
     
     wdt_reset();
 
-    /*
-    for (int brainNo=0; brainNo<STB.rs485getSlaveCnt(); brainNo++) {
-        Mother.setFlag(STB, brainNo, cmdFlags::ledFlag, true);
-        Mother.setFlag(STB, brainNo, cmdFlags::rfidFlag, true);
-        Mother.setFlag(STB, brainNo, cmdFlags::oledFlag, true);
-        Mother.flagsCompleted(STB, brainNo);
-    }
-
-    
     int argsCnt = 2;
     // first value is the index of the Stripe, second value is the amount of LEDs on said Stripe
     int ledCount[argsCnt] = {0, 2};
-    Mother.sendSetting(STB, 0, settingCmds::ledCount, ledCount, argsCnt);
-    ledCount[0] = 1;
-    ledCount[1] = 1;
-    Mother.sendSetting(STB, 0, settingCmds::ledCount, ledCount, argsCnt);
-    ledCount[0] = 2;
-    ledCount[1] = 3;
-    Mother.sendSetting(STB, 0, settingCmds::ledCount, ledCount, argsCnt);
-    ledCount[0] = 3;
-    ledCount[1] = 3;
-    Mother.sendSetting(STB, 0, settingCmds::ledCount, ledCount, argsCnt);
-    Mother.settingsCompleted(STB, 0);
-    */
+    for (int brainNo=0; brainNo<Mother.rs485getSlaveCnt(); brainNo++) {
+        Mother.setFlag(brainNo, cmdFlags::ledFlag, true);
+        Mother.setFlag(brainNo, cmdFlags::rfidFlag, true);
+        Mother.setFlag(brainNo, cmdFlags::oledFlag, true);
+        Mother.flagsCompleted(brainNo);
+        Mother.sendSetting(brainNo, settingCmds::ledCount, ledCount, argsCnt);
+        Mother.settingsCompleted(brainNo);
+    }
 
-    STB.dbgln("Completed settings");
+    STB.dbgln(F("Completed settings"));
     initLeds();
     STB.printSetupEnd();
 }
@@ -81,13 +68,13 @@ void initLeds() {
  */
 void RFIDPolling() {
     int lineCnt = 0;
-    STB.rs485PerformPoll();
+    Mother.rs485PerformPoll();
 
     while (STB.rs485RcvdNextLn() && lineCnt++ < 5) {
 
         STB.dbgln(STB.rcvdPtr);
 
-        if (strncmp(Mother.keyWords.rfidKeyword, STB.rcvdPtr, strlen(Mother.keyWords.rfidKeyword)) != 0) {
+        if (strncmp(KeywordsList::rfidKeyword, STB.rcvdPtr, strlen(KeywordsList::rfidKeyword)) != 0) {
             STB.dbgln("continuing");
             continue; // skip all the other checks since its not RFID cmd
         }
@@ -99,10 +86,10 @@ void RFIDPolling() {
             STB.dbgln(ptr);
         }
 
-        if (strncmp(rfidSolutions[STB.rs485getPolledSlave()], ptr, strlen(rfidSolutions[STB.rs485getPolledSlave()])) == 0) {    
+        if (strncmp(rfidSolutions[Mother.rs485getPolledSlave()], ptr, strlen(rfidSolutions[Mother.rs485getPolledSlave()])) == 0) {    
             STB.dbg("correct card on slave");
-            STB.dbgln(String(STB.rs485getPolledSlave()));
-            LED_CMDS::setToClr(STB, STB.rs485getPolledSlave(), LED_CMDS::clrGreen, 50);
+            STB.dbgln(String(Mother.rs485getPolledSlave()));
+            LED_CMDS::setToClr(STB, Mother.rs485getPolledSlave(), LED_CMDS::clrGreen, 50);
         }
     }
 
