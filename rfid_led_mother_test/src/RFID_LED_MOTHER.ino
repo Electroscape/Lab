@@ -12,18 +12,11 @@
 #include <stb_common.h>
 #include <avr/wdt.h>
 #include <stb_mother.h>
-#include <stb_mother_ledCmds.h>
+// #include <stb_mother_ledCmds.h>
 
-
-STB STB;
 STB_MOTHER Mother;
 
-
 void setup() {
-    STB.begin();
-
-    STB.i2cScanner();
-
     // STB.rs485SetToMaster();
     Mother.rs485SetSlaveCount(1);
 
@@ -44,9 +37,8 @@ void setup() {
         Mother.settingsCompleted(brainNo);
     }
 
-    STB.dbgln(F("Completed settings"));
+    Mother.dbgln(F("Completed settings"));
     initLeds();
-    STB.printSetupEnd();
 }
 
 
@@ -58,7 +50,7 @@ void loop() {
 
 void initLeds() {
     for (int i=0; i<RFID_LED_AMOUNT; i++) {
-        LED_CMDS::setToClr(STB, i, LED_CMDS::clrRed, 50);
+        // LED_CMDS::setToClr(STB, i, LED_CMDS::clrRed, 50);
     }
 }
 
@@ -70,26 +62,26 @@ void RFIDPolling() {
     int lineCnt = 0;
     Mother.rs485PerformPoll();
 
-    while (STB.rs485RcvdNextLn() && lineCnt++ < 5) {
+    while (Mother.nextRcvdLn() && lineCnt++ < 5) {
 
-        STB.dbgln(STB.rcvdPtr);
+        Mother.dbgln(Mother.STB_.rcvdPtr);
 
-        if (strncmp(KeywordsList::rfidKeyword, STB.rcvdPtr, strlen(KeywordsList::rfidKeyword)) != 0) {
-            STB.dbgln("continuing");
+        if (strncmp(KeywordsList::rfidKeyword.c_str(), Mother.STB_.rcvdPtr, KeywordsList::rfidKeyword.length()) != 0) {
+            Mother.dbgln("continuing");
             continue; // skip all the other checks since its not RFID cmd
         }
 
-        char* ptr = strtok(STB.rcvdPtr, "_");
+        char* ptr = strtok(Mother.STB_.rcvdPtr, "_");
         ptr = strtok(NULL, "_");
         if (ptr != NULL) {
-            STB.dbgln("card detected: "); 
-            STB.dbgln(ptr);
+            Mother.dbgln("card detected: "); 
+            Mother.dbgln(ptr);
         }
 
         if (strncmp(rfidSolutions[Mother.rs485getPolledSlave()], ptr, strlen(rfidSolutions[Mother.rs485getPolledSlave()])) == 0) {    
-            STB.dbg("correct card on slave");
-            STB.dbgln(String(Mother.rs485getPolledSlave()));
-            LED_CMDS::setToClr(STB, Mother.rs485getPolledSlave(), LED_CMDS::clrGreen, 50);
+            Mother.dbg("correct card on slave");
+            Mother.dbgln(String(Mother.rs485getPolledSlave()));
+            // LED_CMDS::setToClr(STB, Mother.rs485getPolledSlave(), LED_CMDS::clrGreen, 50);
         }
     }
 
