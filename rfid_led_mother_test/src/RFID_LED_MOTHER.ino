@@ -17,8 +17,9 @@
 STB_MOTHER Mother;
 
 void setup() {
-    // STB.rs485SetToMaster();
+    Mother.begin();
     Mother.rs485SetSlaveCount(1);
+    Mother.relayInit(Mother.motherRelay, relayPinArray, relayInitArray);
 
     Serial.println(F("WDT endabled"));
     wdt_enable(WDTO_8S);
