@@ -49,6 +49,8 @@ bool checkForKeypad() {
     if (passwordMap[stage] < 0) { return false; }
 
     if (strncmp(keypadCmd.c_str(), Mother.STB_.rcvdPtr, keypadCmd.length()) == 0) {
+
+        Mother.STB_.rs485SendAck();
         
         char *cmdPtr = strtok(Mother.STB_.rcvdPtr, KeywordsList::delimiter.c_str());
         cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
@@ -96,6 +98,7 @@ bool checkForRfid() {
     if (strncmp(KeywordsList::rfidKeyword.c_str(), Mother.STB_.rcvdPtr, KeywordsList::rfidKeyword.length() ) != 0) {
         return false;
     } 
+    Mother.STB_.rs485SendAck();
     char *cmdPtr = strtok(Mother.STB_.rcvdPtr, KeywordsList::delimiter.c_str());
     cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
     if (strncmp(passwords[passwordMap[stage]], cmdPtr, strlen(passwords[passwordMap[stage]]) ) == 0 ) {
@@ -108,6 +111,7 @@ bool checkForRfid() {
 
 void interpreter() {
     while (Mother.STB_.rcvdPtr != NULL) {
+        Mother.STB_.dbgln(Mother.STB_.rcvdPtr);
         if (checkForKeypad()) {continue;};
         if (checkForRfid()) {continue;};
         Mother.nextRcvdLn();
@@ -130,6 +134,7 @@ void stageUpdate() {
 void loop() {
     Mother.rs485PerformPoll();
     interpreter();
+    wdt_reset();
     // Mother.sendCmdToSlave(1, msg);
 }
 
