@@ -46,11 +46,14 @@ void setup() {
 
 // candidate to be moved to a mother specific part of the keypad lib
 bool checkForKeypad() {
+
+    Mother.STB_.dbgln("checkforKeypad");
+
     if (passwordMap[stage] < 0) { return false; }
 
     if (strncmp(keypadCmd.c_str(), Mother.STB_.rcvdPtr, keypadCmd.length()) == 0) {
 
-        Mother.STB_.rs485SendAck();
+        Mother.sendAck();
         
         char *cmdPtr = strtok(Mother.STB_.rcvdPtr, KeywordsList::delimiter.c_str());
         cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
@@ -60,6 +63,9 @@ bool checkForKeypad() {
         if (cmdNo == KeypadCmds::evaluate) {
 
             cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
+            Serial.println("password is: ");
+            Serial.println(cmdPtr);
+            delay(500);
             // TODO: error handling here in case the rest of the msg is lost?
             if (!(cmdPtr != NULL)) {
                 // send NACK? this isnt in the control flow yet
@@ -67,8 +73,7 @@ bool checkForKeypad() {
             }
             // TODO: check for ACK handling on Brain
             // maybe have optional bool for NACK?
-            Mother.sendAck();
-
+            
             char msg[10] = "";
             strcpy(msg, keypadCmd.c_str());
             strcat(msg, KeywordsList::delimiter.c_str());
@@ -76,10 +81,14 @@ bool checkForKeypad() {
             if (strncmp(passwords[stage], cmdPtr, strlen(passwords[stage]) ) == 0) {
                 sprintf(noString, "%d", KeypadCmds::correct);
                 strcat(msg, noString);
+                Mother.dbg("increased stage to");
+                Mother.dbgln(String(stage));
                 stage++;
             } else {
                 sprintf(noString, "%d", KeypadCmds::wrong);
                 strcat(msg, noString);
+                Mother.dbg("wrong pass");
+                Mother.dbgln(String(stage));
             }
             // slaveNo needs to be really optional at this point. the default shall be polledslave
             Mother.sendCmdToSlave(msg);
@@ -110,11 +119,9 @@ bool checkForRfid() {
 
 
 void interpreter() {
-    while (Mother.STB_.rcvdPtr != NULL) {
-        Mother.STB_.dbgln(Mother.STB_.rcvdPtr);
+    while (Mother.nextRcvdLn()) {
         if (checkForKeypad()) {continue;};
         if (checkForRfid()) {continue;};
-        Mother.nextRcvdLn();
     }
 }
 
@@ -127,14 +134,19 @@ void stageUpdate() {
     while (!Mother.sendCmdToSlave(msg)) {
         wdt_reset();
     }
-    // do the oled update thing 
+    lastStage = stage;
+
+    // update flags
 }
 
 
 void loop() {
     Mother.rs485PerformPoll();
     interpreter();
+    stageUpdate();
     wdt_reset();
+
+    delay(200);
     // Mother.sendCmdToSlave(1, msg);
 }
 
