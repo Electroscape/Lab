@@ -48,6 +48,7 @@ void setup() {
 bool checkForKeypad() {
 
     Mother.STB_.dbgln("checkforKeypad");
+    Mother.STB_.dbgln(Mother.STB_.rcvdPtr);
 
     if (passwordMap[stage] < 0) { return false; }
 
@@ -131,9 +132,7 @@ void stageUpdate() {
     strcpy(msg, oledHeaderCmd.c_str());
     strcat(msg, KeywordsList::delimiter.c_str());
     strcat(msg, stageTexts[stage]); 
-    while (!Mother.sendCmdToSlave(msg)) {
-        wdt_reset();
-    }
+    Mother.sendCmdToSlave(msg);
     lastStage = stage;
 
     // update flags
@@ -146,7 +145,7 @@ void loop() {
     stageUpdate();
     wdt_reset();
 
-    delay(200);
+    delay(500);
     // Mother.sendCmdToSlave(1, msg);
 }
 
