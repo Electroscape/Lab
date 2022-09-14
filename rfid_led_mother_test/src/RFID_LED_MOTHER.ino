@@ -12,7 +12,7 @@
 #include <stb_common.h>
 #include <avr/wdt.h>
 #include <stb_mother.h>
-// #include <stb_mother_ledCmds.h>
+#include <stb_mother_ledCmds.h>
 
 STB_MOTHER Mother;
 
@@ -51,7 +51,7 @@ void loop() {
 
 void initLeds() {
     for (int i=0; i<RFID_LED_AMOUNT; i++) {
-        // LED_CMDS::setToClr(STB, i, LED_CMDS::clrRed, 50);
+        LED_CMDS::setToClr(Mother, i, LED_CMDS::clrRed, 50);
     }
 }
 
@@ -82,7 +82,7 @@ void RFIDPolling() {
         if (strncmp(rfidSolutions[Mother.rs485getPolledSlave()], ptr, strlen(rfidSolutions[Mother.rs485getPolledSlave()])) == 0) {    
             Mother.dbg("correct card on slave");
             Mother.dbgln(String(Mother.rs485getPolledSlave()));
-            // LED_CMDS::setToClr(STB, Mother.rs485getPolledSlave(), LED_CMDS::clrGreen, 50);
+            LED_CMDS::setToClr(Mother, Mother.rs485getPolledSlave(), LED_CMDS::clrGreen, 50);
         }
     }
 
