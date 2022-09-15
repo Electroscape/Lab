@@ -69,29 +69,29 @@ bool checkForKeypad() {
             delay(500);
             // TODO: error handling here in case the rest of the msg is lost?
             if (!(cmdPtr != NULL)) {
-                // send NACK? this isnt in the control flow yet
+                // send NACK? this isnt in the control flow yet or simply eof?
                 return false;
             }
-            // TODO: check for ACK handling on Brain
-            // maybe have optional bool for NACK?
-            
+
+            // return msg with correct or incorrect
             char msg[10] = "";
             strcpy(msg, keypadCmd.c_str());
             strcat(msg, KeywordsList::delimiter.c_str());
             char noString[3];
+
             if (strncmp(passwords[stage], cmdPtr, strlen(passwords[stage]) ) == 0) {
                 sprintf(noString, "%d", KeypadCmds::correct);
                 strcat(msg, noString);
-                Mother.dbg("increased stage to");
-                Mother.dbgln(String(stage));
+                // Mother.dbg("increased stage to");
+                // Mother.dbgln(String(stage));
                 stage++;
             } else {
                 sprintf(noString, "%d", KeypadCmds::wrong);
                 strcat(msg, noString);
-                Mother.dbg("wrong pass");
-                Mother.dbgln(String(stage));
+                // Mother.dbg("wrong pass");
+                // Mother.dbgln(String(stage));
             }
-            // slaveNo needs to be really optional at this point. the default shall be polledslave
+           
             Mother.sendCmdToSlave(msg);
         }
         
@@ -108,13 +108,26 @@ bool checkForRfid() {
     if (strncmp(KeywordsList::rfidKeyword.c_str(), Mother.STB_.rcvdPtr, KeywordsList::rfidKeyword.length() ) != 0) {
         return false;
     } 
-    Mother.STB_.rs485SendAck();
     char *cmdPtr = strtok(Mother.STB_.rcvdPtr, KeywordsList::delimiter.c_str());
     cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
+    
+    // return msg with correct or incorrect
+    // could be simply universal CodeCorrect
+    char msg[10] = "";
+    strcpy(msg, keypadCmd.c_str());
+    strcat(msg, KeywordsList::delimiter.c_str());
+    char noString[3];
+
     if (strncmp(passwords[passwordMap[stage]], cmdPtr, strlen(passwords[passwordMap[stage]]) ) == 0 ) {
-        // send some form of validation to trigger buzzer
+        sprintf(noString, "%d", KeypadCmds::correct);
+        strcat(msg, noString);
         stage++;
+    } else {
+        sprintf(noString, "%d", KeypadCmds::wrong);
+        strcat(msg, noString);
     }
+    Mother.sendCmdToSlave(msg);
+    delay(5000);
     return true;
 }
 
@@ -123,6 +136,7 @@ void interpreter() {
     while (Mother.nextRcvdLn()) {
         if (checkForKeypad()) {continue;};
         if (checkForRfid()) {continue;};
+        Serial.println("interpreter");
     }
 }
 
@@ -144,8 +158,6 @@ void loop() {
     interpreter();
     stageUpdate();
     wdt_reset();
-
-    delay(500);
     // Mother.sendCmdToSlave(1, msg);
 }
 

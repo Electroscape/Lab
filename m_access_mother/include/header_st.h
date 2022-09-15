@@ -8,7 +8,7 @@
 #define headLineMaxSize 14
 
 char passwords[passCnt][maxPassLen] = {
-    "1234",
+    "GF",
     "4321",
     "1337",
     "0000"
