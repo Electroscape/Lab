@@ -46,9 +46,15 @@ void setup() {
 
 // candidate to be moved to a mother specific part of the keypad lib
 bool checkForKeypad() {
+
+    Mother.STB_.dbgln("checkforKeypad");
+    Mother.STB_.dbgln(Mother.STB_.rcvdPtr);
+
     if (passwordMap[stage] < 0) { return false; }
 
     if (strncmp(keypadCmd.c_str(), Mother.STB_.rcvdPtr, keypadCmd.length()) == 0) {
+
+        Mother.sendAck();
         
         char *cmdPtr = strtok(Mother.STB_.rcvdPtr, KeywordsList::delimiter.c_str());
         cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
@@ -58,28 +64,34 @@ bool checkForKeypad() {
         if (cmdNo == KeypadCmds::evaluate) {
 
             cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
+            Serial.println("password is: ");
+            Serial.println(cmdPtr);
+            delay(500);
             // TODO: error handling here in case the rest of the msg is lost?
             if (!(cmdPtr != NULL)) {
-                // send NACK? this isnt in the control flow yet
+                // send NACK? this isnt in the control flow yet or simply eof?
                 return false;
             }
-            // TODO: check for ACK handling on Brain
-            // maybe have optional bool for NACK?
-            Mother.sendAck();
 
+            // return msg with correct or incorrect
             char msg[10] = "";
             strcpy(msg, keypadCmd.c_str());
             strcat(msg, KeywordsList::delimiter.c_str());
             char noString[3];
+
             if (strncmp(passwords[stage], cmdPtr, strlen(passwords[stage]) ) == 0) {
                 sprintf(noString, "%d", KeypadCmds::correct);
                 strcat(msg, noString);
+                // Mother.dbg("increased stage to");
+                // Mother.dbgln(String(stage));
                 stage++;
             } else {
                 sprintf(noString, "%d", KeypadCmds::wrong);
                 strcat(msg, noString);
+                // Mother.dbg("wrong pass");
+                // Mother.dbgln(String(stage));
             }
-            // slaveNo needs to be really optional at this point. the default shall be polledslave
+           
             Mother.sendCmdToSlave(msg);
         }
         
@@ -98,19 +110,33 @@ bool checkForRfid() {
     } 
     char *cmdPtr = strtok(Mother.STB_.rcvdPtr, KeywordsList::delimiter.c_str());
     cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
+    
+    // return msg with correct or incorrect
+    // could be simply universal CodeCorrect
+    char msg[10] = "";
+    strcpy(msg, keypadCmd.c_str());
+    strcat(msg, KeywordsList::delimiter.c_str());
+    char noString[3];
+
     if (strncmp(passwords[passwordMap[stage]], cmdPtr, strlen(passwords[passwordMap[stage]]) ) == 0 ) {
-        // send some form of validation to trigger buzzer
+        sprintf(noString, "%d", KeypadCmds::correct);
+        strcat(msg, noString);
         stage++;
+    } else {
+        sprintf(noString, "%d", KeypadCmds::wrong);
+        strcat(msg, noString);
     }
+    Mother.sendCmdToSlave(msg);
+    delay(5000);
     return true;
 }
 
 
 void interpreter() {
-    while (Mother.STB_.rcvdPtr != NULL) {
+    while (Mother.nextRcvdLn()) {
         if (checkForKeypad()) {continue;};
         if (checkForRfid()) {continue;};
-        Mother.nextRcvdLn();
+        Serial.println("interpreter");
     }
 }
 
@@ -120,16 +146,18 @@ void stageUpdate() {
     strcpy(msg, oledHeaderCmd.c_str());
     strcat(msg, KeywordsList::delimiter.c_str());
     strcat(msg, stageTexts[stage]); 
-    while (!Mother.sendCmdToSlave(msg)) {
-        wdt_reset();
-    }
-    // do the oled update thing 
+    Mother.sendCmdToSlave(msg);
+    lastStage = stage;
+
+    // update flags
 }
 
 
 void loop() {
     Mother.rs485PerformPoll();
     interpreter();
+    stageUpdate();
+    wdt_reset();
     // Mother.sendCmdToSlave(1, msg);
 }
 
