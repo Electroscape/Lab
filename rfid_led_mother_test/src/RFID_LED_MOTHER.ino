@@ -51,6 +51,7 @@ void loop() {
 
 void initLeds() {
     for (int i=0; i<RFID_LED_AMOUNT; i++) {
+        delay(5);
         LED_CMDS::setToClr(Mother, i, LED_CMDS::clrRed, 50);
     }
 }
