@@ -10,7 +10,8 @@
  *  TODO: 
  *  - check passwords and passwordsmap usages 
  *  - consider a generic code/combination evaluation
- * 
+ *  - map actions to passwords, change stage in these actions
+ *  - consider non blocking 
  */
 
 
@@ -23,7 +24,7 @@
 
 
 STB_MOTHER Mother;
-int stage = 0;
+int stage = stage1;
 // doing this so the first time it updates the brains oled without an exta setup line
 int lastStage = -1;
 
@@ -38,9 +39,25 @@ void setup() {
 
     Mother.rs485SetSlaveCount(1);
 
-    // Mother.setFlag(STB, 0, cmdFlags::LED, true);
-
     // STB.printSetupEnd();
+}
+
+
+bool passwordInterpreter(char* password) {
+    for (int passNo; passNo < PasswordAmount; passNo++) {
+        if (passwordMap[passNo] & stage) {
+            Serial.print("activ pass:");
+            Serial.println(passwords[passNo]);
+            // get MSB here 
+            if (strncmp(passwords[stage], password, strlen(passwords[stage]) ) == 0) {
+                stage = stage << 1;
+                delay(6000);
+                return true;
+            }
+        }
+    }
+    delay(6000);
+    return false;
 }
 
 
@@ -50,61 +67,54 @@ bool checkForKeypad() {
     Mother.STB_.dbgln("checkforKeypad");
     Mother.STB_.dbgln(Mother.STB_.rcvdPtr);
 
-    if (passwordMap[stage] < 0) { return false; }
-
-    if (strncmp(keypadCmd.c_str(), Mother.STB_.rcvdPtr, keypadCmd.length()) == 0) {
-
-        Mother.sendAck();
-        
-        char *cmdPtr = strtok(Mother.STB_.rcvdPtr, KeywordsList::delimiter.c_str());
-        cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
-        int cmdNo;
-        sscanf(cmdPtr, "%d", &cmdNo);
-
-        if (cmdNo == KeypadCmds::evaluate) {
-
-            cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
-            Serial.println("password is: ");
-            Serial.println(cmdPtr);
-            delay(500);
-            // TODO: error handling here in case the rest of the msg is lost?
-            if (!(cmdPtr != NULL)) {
-                // send NACK? this isnt in the control flow yet or simply eof?
-                return false;
-            }
-
-            // return msg with correct or incorrect
-            char msg[10] = "";
-            strcpy(msg, keypadCmd.c_str());
-            strcat(msg, KeywordsList::delimiter.c_str());
-            char noString[3];
-
-            if (strncmp(passwords[stage], cmdPtr, strlen(passwords[stage]) ) == 0) {
-                sprintf(noString, "%d", KeypadCmds::correct);
-                strcat(msg, noString);
-                // Mother.dbg("increased stage to");
-                // Mother.dbgln(String(stage));
-                stage++;
-            } else {
-                sprintf(noString, "%d", KeypadCmds::wrong);
-                strcat(msg, noString);
-                // Mother.dbg("wrong pass");
-                // Mother.dbgln(String(stage));
-            }
-           
-            Mother.sendCmdToSlave(msg);
-        }
-        
-        return true;
+    if (strncmp(keypadCmd.c_str(), Mother.STB_.rcvdPtr, keypadCmd.length()) != 0) {
+        return false;
     }
-    return false;
+    Mother.sendAck();
+
+    char *cmdPtr = strtok(Mother.STB_.rcvdPtr, KeywordsList::delimiter.c_str());
+    cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
+    int cmdNo;
+    sscanf(cmdPtr, "%d", &cmdNo);
+
+    // no evaluation requiested
+    if (cmdNo != KeypadCmds::evaluate) { return true; }
+
+    cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
+    Serial.println("password is: ");
+    Serial.println(cmdPtr);
+    delay(500);
+
+    // TODO: error handling here in case the rest of the msg is lost?
+    if (!(cmdPtr != NULL)) {
+        // send NACK? this isnt in the control flow yet or simply eof?
+        return false;
+    }
+
+    // prepare return msg with correct or incorrect
+    char msg[10] = "";
+    char noString[3];
+    strcpy(msg, keypadCmd.c_str());
+    strcat(msg, KeywordsList::delimiter.c_str());
+            
+    if (passwordInterpreter(cmdPtr)) {
+        sprintf(noString, "%d", KeypadCmds::correct);
+        strcat(msg, noString);
+    } else {
+        sprintf(noString, "%d", KeypadCmds::wrong);
+        strcat(msg, noString);
+    }
+
+
+    strcat(msg, noString);
+    Mother.sendCmdToSlave(msg);
+    return true;
 }
 
 
 // again good candidate for a mother specific lib
 bool checkForRfid() {
-    if (passwordMap[stage] < 0) { return false; }
-    // not matching the keyword
+
     if (strncmp(KeywordsList::rfidKeyword.c_str(), Mother.STB_.rcvdPtr, KeywordsList::rfidKeyword.length() ) != 0) {
         return false;
     } 
@@ -118,15 +128,15 @@ bool checkForRfid() {
     strcat(msg, KeywordsList::delimiter.c_str());
     char noString[3];
 
-    if (strncmp(passwords[passwordMap[stage]], cmdPtr, strlen(passwords[passwordMap[stage]]) ) == 0 ) {
+    if (passwordInterpreter(cmdPtr)) {
         sprintf(noString, "%d", KeypadCmds::correct);
         strcat(msg, noString);
-        stage++;
     } else {
         sprintf(noString, "%d", KeypadCmds::wrong);
         strcat(msg, noString);
     }
     Mother.sendCmdToSlave(msg);
+    // blocking
     delay(5000);
     return true;
 }
