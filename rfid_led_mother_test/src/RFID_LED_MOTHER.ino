@@ -2,7 +2,7 @@
 *   2CP - TeamEscape - Engineering
 *   Author Martin Pek
 *   @date 30.06.2022
-*   build with lib_arduino v0.6.2
+*   updated to lib_arduino version v 0.6.6
 */
 
 /**************************************************************************/
@@ -18,7 +18,7 @@ STB_MOTHER Mother;
 
 void setup() {
     Mother.begin();
-    Mother.rs485SetSlaveCount(1);
+    Mother.rs485SetSlaveCount(4);
     Mother.relayInit(Mother.motherRelay, relayPinArray, relayInitArray);
 
     Serial.println(F("WDT endabled"));
@@ -28,7 +28,7 @@ void setup() {
 
     int argsCnt = 2;
     // first value is the index of the Stripe, second value is the amount of LEDs on said Stripe
-    int ledCount[argsCnt] = {0, 2};
+    int ledCount[argsCnt] = {0, 3};
     for (int brainNo=0; brainNo<Mother.rs485getSlaveCnt(); brainNo++) {
         Mother.setFlag(brainNo, cmdFlags::ledFlag, true);
         Mother.setFlag(brainNo, cmdFlags::rfidFlag, true);
