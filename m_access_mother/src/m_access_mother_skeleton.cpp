@@ -12,6 +12,7 @@
  *  - consider a generic code/combination evaluation
  *  - map actions to passwords, change stage in these actions
  *  - consider non blocking 
+ *  - consider stage to stageIndex conversion?
  */
 
 
@@ -19,15 +20,17 @@
 #include <stb_keypadCmds.h>
 #include <stb_oledCmds.h>
 
+
 #include "header_st.h"
 
 
 
 STB_MOTHER Mother;
 int stage = stage1;
+// since stages are single binary bits and we still need to d some indexing
+int stageIndex=0;
 // doing this so the first time it updates the brains oled without an exta setup line
 int lastStage = -1;
-
 
 void setup() {
 
@@ -43,13 +46,16 @@ void setup() {
 }
 
 
+// since stages are binary bit being shifted we cannot use them to index
+int getStageIndex() {
+    return (stage & stageSum) -1;
+}
+
+
 bool passwordInterpreter(char* password) {
     for (int passNo; passNo < PasswordAmount; passNo++) {
         if (passwordMap[passNo] & stage) {
-            Serial.print("activ pass:");
-            Serial.println(passwords[passNo]);
-            // get MSB here 
-            if (strncmp(passwords[stage], password, strlen(passwords[stage]) ) == 0) {
+            if (strncmp(passwords[passNo], password, strlen(passwords[passNo]) ) == 0) {
                 stage = stage << 1;
                 delay(6000);
                 return true;
@@ -77,7 +83,9 @@ bool checkForKeypad() {
     int cmdNo;
     sscanf(cmdPtr, "%d", &cmdNo);
 
-    // no evaluation requiested
+    /* no evaluation requested, may just be an update for oled display on mother
+    * or being used for things like an interface
+    */
     if (cmdNo != KeypadCmds::evaluate) { return true; }
 
     cmdPtr = strtok(NULL, KeywordsList::delimiter.c_str());
@@ -150,13 +158,30 @@ void interpreter() {
     }
 }
 
+
+/**
+ * @brief  triggers effects specific to the given stage, 
+ * room specific excecutions can happen here
+ * TODO: avoid reposts of setflags, but this is an optimisation
+*/
 void stageUpdate() {
     if (lastStage == stage) { return; }
+    stageIndex = getStageIndex();
+    // check || stageIndex >= int(sizeof(stages))
+    if (stageIndex < 0) {
+        Serial.println(F("Stages out of index!"));
+        delay(5000);
+        wdt_reset();
+    }
+    Mother.setFlags(0, flagMapping[stageIndex]);
+
     char msg[32];
     strcpy(msg, oledHeaderCmd.c_str());
     strcat(msg, KeywordsList::delimiter.c_str());
-    strcat(msg, stageTexts[stage]); 
+    strcat(msg, stageTexts[stageIndex]); 
     Mother.sendCmdToSlave(msg);
+
+
     lastStage = stage;
 
     // update flags
