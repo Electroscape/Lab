@@ -1,6 +1,5 @@
 #pragma once
 
-#define StageCount 8
 #define PasswordAmount 4
 #define MaxPassLen 10
 
@@ -16,11 +15,13 @@ enum stages{
     stage5 = 16,
     stage6 = 32,
     stage7 = 64,
-    stage8 = 128
+    stage8 = 128,
+    // always update this when changing
+    StageCount = 8
 };
 
 // the sum of all stages sprinkled with a bit of black magic
-int stageSum = ~(~0<<sizeof(stages));
+int stageSum = ~( ~0 << StageCount );
 
 
 // could have multiple brains listed here making up a matrix
