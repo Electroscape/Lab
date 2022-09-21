@@ -7,7 +7,41 @@
 #define headLineMaxSize 14
 
 
-enum stages{
+enum relays {
+    locker_1,
+    locker_2,
+    locker_3,
+    locker_4,
+    service, 
+    relayAmount, 
+};
+
+enum relayInits {
+    locker_1_init=1,
+    locker_2_init=1,
+    locker_3_init=1,
+    locker_4_init=1,
+    service_init=0
+};
+
+int relayPinArray[relayAmount] = {
+    locker_1,
+    locker_2,
+    locker_3,
+    locker_4,
+    service
+};
+
+int relayInitArray[relayAmount] = {
+    locker_1_init,
+    locker_2_init,
+    locker_3_init,
+    locker_4_init,
+    service_init
+};
+
+
+enum stages {
     stage1 = 1,
     stage2 = 2,
     stage3 = 4,

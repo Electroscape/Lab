@@ -36,6 +36,7 @@ void setup() {
 
     Mother.begin();
     // starts serial and default oled
+    Mother.relayInit(relayPinArray, relayInitArray, relayAmount);
 
     Serial.println("WDT endabled");
     wdt_enable(WDTO_8S);
@@ -47,8 +48,8 @@ void setup() {
 
 
 // since stages are binary bit being shifted we cannot use them to index
-int getStageIndex() {
-    return (stage & stageSum) -1;
+void setStageIndex() {
+    stageIndex = (stage & stageSum) -1;
 }
 
 
@@ -57,12 +58,11 @@ bool passwordInterpreter(char* password) {
         if (passwordMap[passNo] & stage) {
             if (strncmp(passwords[passNo], password, strlen(passwords[passNo]) ) == 0) {
                 stage = stage << 1;
-                delay(6000);
+                delay(500);
                 return true;
             }
         }
     }
-    delay(6000);
     return false;
 }
 
@@ -154,7 +154,6 @@ void interpreter() {
     while (Mother.nextRcvdLn()) {
         if (checkForKeypad()) {continue;};
         if (checkForRfid()) {continue;};
-        Serial.println("interpreter");
     }
 }
 
@@ -166,7 +165,7 @@ void interpreter() {
 */
 void stageUpdate() {
     if (lastStage == stage) { return; }
-    stageIndex = getStageIndex();
+    setStageIndex();
     // check || stageIndex >= int(sizeof(stages))
     if (stageIndex < 0) {
         Serial.println(F("Stages out of index!"));
