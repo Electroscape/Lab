@@ -19,13 +19,14 @@ STB_MOTHER Mother;
 void setup() {
     Mother.begin();
     Mother.rs485SetSlaveCount(4);
-    Mother.relayInit(Mother.motherRelay, relayPinArray, relayInitArray);
+    // Mother.relayInit(Mother.motherRelay, relayPinArray, relayInitArray);
 
     Serial.println(F("WDT endabled"));
     wdt_enable(WDTO_8S);
     
     wdt_reset();
 
+    /*
     int argsCnt = 2;
     // first value is the index of the Stripe, second value is the amount of LEDs on said Stripe
     int ledCount[argsCnt] = {0, 3};
@@ -37,8 +38,9 @@ void setup() {
         Mother.sendSetting(brainNo, settingCmds::ledCount, ledCount, argsCnt);
         Mother.settingsCompleted(brainNo);
     }
-
     Mother.dbgln(F("Completed settings"));
+    */
+
     initLeds();
 }
 
