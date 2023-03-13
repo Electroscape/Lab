@@ -24,12 +24,11 @@ STB STB;
 int rcvd;
 
 
-
 void setup() {
     
     STB.begin();
 
-    STB.rs485SetSlaveAddr(0);
+    // STB.rs485SetSlaveAddr(0);
 }
 
 
