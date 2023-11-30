@@ -5,7 +5,7 @@
   "TR1": {
     "foscam": {
       "pincode": "1010",
-      "zoom": false
+      "zoom": true
     },
     "media": {
       "prefix": "ST"

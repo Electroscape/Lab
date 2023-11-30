@@ -1,4 +1,4 @@
-
+{% extends 'layout.html' %}
 {% block head %}
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.7/dist/iconify-icon.min.js"></script>
     <style>
@@ -222,7 +222,6 @@
                                 <td>
                                 </td>
                             </tr>
-                            {% if g_config.get("zoom") %}
                                 <tr>
                                     <td>
                                         <button onmousedown="ptzCmd('zoomOut', '{{ loop.index0 }}')"
@@ -240,7 +239,6 @@
                                         </button>
                                     </td>
                                 </tr>
-                            {% endif %}
                         </table>
                     </div>
                 </div>
@@ -252,37 +250,13 @@
 
 {% block add_js %}
     <script type="text/javascript">
-        $('#cams-tab-1').click(function (e) {
-            swal({
-                title: "Encrypted Stream",
-                text: "Please write the decryption key",
-                buttons: {
-                    cancel: true
-                },
-                content: {
-                    element: "input",
-                    attributes: {
-                        placeholder: "4-digit PIN Code",
-                        type: "password"
-                    },
-                }
-            }).then(
-                function (inputValue) {
-                    console.log(inputValue)
-                    if (inputValue === "{{ g_config.get('pincode') }}") {
-                        swal("Access Granted", "Correct PIN Code", "success");
-                        $("#cams-tab-1").tab("show");
-                    } else {
-                        swal("Access Denied", "Failed to decrypt the stream", "error");
-                    }
-                }
-            );
-
-            return true;
-        })
-
         $('#cams-tab-0').click(function (e) {
             $("#cams-tab-0").tab("show");
         })
+
+        $('#cams-tab-1').click(function (e) {
+            $("#cams-tab-1").tab("show");
+
+
     </script>
 {% endblock %}
