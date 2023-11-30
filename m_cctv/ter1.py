@@ -27,8 +27,8 @@ app.config['SECRET_KEY'] = 'EscapeTerminal#'
 
 # standard Python
 # reconnection=False
-sio = socketio.Client()
-self_sio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60, ping_interval=5)
+# sio = socketio.Client()
+# self_sio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60, ping_interval=5)
 
 ip_conf = js_r("ip_config.json", from_static=False, add_buttons=False)
 
@@ -47,7 +47,6 @@ class StatusVars:
 
 
 game_status = StatusVars()
-
 
 
 @app.route("/browser/", methods=['GET', 'POST'])
@@ -247,114 +246,6 @@ def favicon():
                                mimetype='image/vnd.microsoft.icon')
 
 
-@sio.event
-def connect():
-    logging.info("Connected to Server!")
-
-
-@self_sio.event
-def connect():
-    logging.info("Self is connected!")
-
-
-@sio.event
-def connect_error(message=None):
-    logging.debug(f"The connection to server failed! \n{message}")
-
-
-@sio.on('to_clients')
-def events_handler(data):
-    # filter the message to get the user here!
-    if data.get("username") != terminal_name.lower():
-        logging.info(f"irrelevant msg: {data}")
-        return 0
-    else:
-        global login_user
-        global usb_boot
-        global laserlock_boot
-        global laserlock_auth
-        global show_personal_r
-
-        msg = data.get("message")
-        cmd = data.get("cmd")
-
-    # Commands
-    if cmd == "auth":
-        login_user = msg
-        logging.info(f"login msg: {msg}")
-        logging.info(f'{terminal_name} authenticated user is: {login_user}')
-        self_sio.emit('usr_auth', {'usr': login_user, 'data': get_globals()})
-    elif cmd == "usbBoot":
-        usb_boot = msg
-        logging.info(f"boot msg: {msg}")
-        self_sio.emit('boot_fe', {'status': usb_boot, 'data': get_globals()})
-    elif cmd == "laserlock":
-        laserlock_boot = msg
-        logging.info(f"laserlock msg: {msg}")
-        # only notify if not solved
-        if laserlock_auth != "success":
-            self_sio.emit('laserlock_fe', {'status': laserlock_boot, 'data': get_globals()})
-    elif cmd == "laserlock_auth":
-        laserlock_auth = msg
-        logging.info(f"laserlock auth msg: {msg}")
-    elif cmd == "personalR":
-        show_personal_r = msg
-        logging.info(f"personal R msg: {msg}")
-        self_sio.emit('usr_auth', {'usr': login_user, 'data': get_globals(), 'silent': True})
-    elif cmd == "loadingbar":
-        logging.info(f"set loading bar: {msg}")
-        self_sio.emit('loadingbar_fe', msg)
-
-
-@sio.on('samples')
-def samples_handler(samples):
-    if isinstance(samples, list):
-        self_sio.emit("samples_updates", samples)  # for the game behaviour
-    elif isinstance(samples, str):
-        self_sio.emit("samples_updates_fe", samples)  # for the notification
-    elif isinstance(samples, dict):
-        global samples_flag
-        samples_flag = samples.get("flag")
-
-
-@sio.on('response_to_terminals')
-def on_message(data):
-    # chat messages are unique with the key 'user_name'
-    if data.get("user_name"):
-        chat_msgs.append(data)
-    self_sio.emit("response_to_frontend", data)
-
-
-@self_sio.on("msg_to_backend")
-def on_msg(data):
-    logging.info(f"from frontend: {data} -> forward to server")
-    if sio.connected:
-        sio.emit("msg_to_server", data)
-    else:
-        logging.debug(f"server is offline! lost data: {data}")
-
-
-@self_sio.event
-def disconnect():
-    logging.debug("self is disconnected!")
-    # it disconnects when navigate pages
-    # raise "SelfDisconnected"
-
-
-@sio.event
-def disconnect():
-    logging.debug("Disconnected from server")
-
-
-while not sio.connected:
-    try:
-        # connecting to sio
-        sio.connect(server_ip)
-    except Exception as e:
-        logging.debug(f"re-try connect to server: {server_ip}")
-        sio.sleep(2)
-
-chat_msgs = RingList(200)  # stores chat history max 200 msgs, declare before starting sockets
 
 login_user = get_login_user(terminal_name)  # either David, Rachel or empty string
 laserlock_boot = "normal"
