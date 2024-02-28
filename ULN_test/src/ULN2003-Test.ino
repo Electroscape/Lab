@@ -13,7 +13,7 @@
 
 
 // Setting Configurations
-#include "header_st.h"
+
 
 #include <stb_common.h>
 #include <stb_brain.h>
@@ -24,10 +24,11 @@
 #define T1 A1
 #define T2 A2
 #define T3 A3
-#define T4 A4
-#define T5 A5
-#define T6 D7
-#define T7 D8
+#define T4 2
+#define T5 3
+#define T6 4
+#define T7 5
+#define T8 6
 
 
 
@@ -41,15 +42,18 @@ unsigned int writedelay = 50;
 
 void setup() {
     
-    // STB.begin();
+    Serial.begin(57600);
     pinMode(A0, OUTPUT);
     pinMode(T1, OUTPUT);
     pinMode(T2, OUTPUT);
     pinMode(T3, OUTPUT);
     pinMode(T4, OUTPUT);
     pinMode(T5, OUTPUT);
-    pinMode(7, OUTPUT);
-    pinMode(8, OUTPUT);
+    pinMode(T6, OUTPUT);
+    pinMode(T7, OUTPUT);
+    pinMode(T8, OUTPUT);
+    Serial.println("V1");
+
 
     // STB.rs485SetSlaveAddr(0);
 }
@@ -61,13 +65,36 @@ void setup() {
 void loop() {
     
     digitalWrite(A0, HIGH);
+
     digitalWrite(T1, HIGH);
+    delay(200);
     digitalWrite(T2, HIGH);
+    delay(200);
     digitalWrite(T3, HIGH);
+    delay(200);
     digitalWrite(T4, HIGH);
-    digitalWrite(T5, HIGH);
-    digitalWrite(7, HIGH);
-    digitalWrite(8, HIGH);
+    delay(200);
+    digitalWrite(T6, HIGH);
+    delay(200);
+    digitalWrite(T7, HIGH);
+    delay(200);
+    digitalWrite(T8, HIGH);
+    delay(2000);
+
+    digitalWrite(T1, LOW);
+    delay(200);
+    digitalWrite(T2, LOW);
+    delay(200);
+    digitalWrite(T3, LOW);
+    delay(200);
+    digitalWrite(T4, LOW);
+    delay(200);
+    digitalWrite(T6, LOW);
+    delay(200);
+    digitalWrite(T7, LOW);
+    delay(200);
+    digitalWrite(T8, LOW);
+    delay(2000);
     
 
     /*
@@ -82,6 +109,7 @@ void loop() {
     */
 
     delay(5000);
+    Serial.println("bufferOutA1");
     /*
 
     digitalWrite(MAX_CTRL_PIN, MAX485_WRITE);
