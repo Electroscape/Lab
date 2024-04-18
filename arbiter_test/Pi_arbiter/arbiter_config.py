@@ -1,4 +1,11 @@
+<<<<<<< Updated upstream
 # for legacy boards of rev 0.1 use
 # arbiter_address_config = [0x38, 0x39, 0x3A, 0x3C, 0x3D, 0x3E]
 # for rev 0.2 and onwards use this config
 arbiter_address_config = [0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D]
+=======
+# for legacy boards of rev 0.1 use
+arbiter_address_config = [0x38, 0x39, 0x3A, 0x3C, 0x3D, 0x3E]
+# for rev 0.2 and onwards use this config
+# arbiter_address_config = [0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D]
+>>>>>>> Stashed changes
