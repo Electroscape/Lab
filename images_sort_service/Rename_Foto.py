@@ -57,7 +57,6 @@ def sort_images(file):
     file_creation_date_file_name = "Kassenfotos_" + creation_time.strftime("%d_%m_%Y")
 
     new_image_year = "Fotos-" + creation_time.strftime("%Y")
-    print(new_image_year)
     new_year_folder_check(new_image_year)
     actual_year_folder_path = new_year_folder_check(new_image_year)
 
@@ -81,9 +80,6 @@ def start_sort_process():
             sort_images(file)
 
 
-while run:
-    start_sort_process()
-    time.sleep(3)
-    print("run")
+start_sort_process()
 
 
