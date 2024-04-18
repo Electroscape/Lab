@@ -12,21 +12,24 @@ from arbiter_config import arbiter_address_config
 
 class ArbiterIO:
     def __init__(self):
-        self.pcfs = self.__pcf_init()
+        self.pcf_inputs = []
+        self.pcf_outputs = []
+        self.__pcf_init()
 
-    @staticmethod
-    def __pcf_init():
-        pcf_list = []
+    def __pcf_init(self):
+        pcf_inputs = []
+        pcf_outputs = []
         for index, pcf_add in enumerate(arbiter_address_config):
             print(pcf_add)
-            pcf_list.append(PCF8574(1, pcf_add))
+            self.pcf_inputs.append(PCF8574(0, pcf_add))
+            self.pcf_outputs.append(PCF8574(1, pcf_add))
             for pin in range(0, 8):
-                pcf_list[index].port[pin] = True
-        return pcf_list
+                pcf_inputs[index].port[pin] = True
+                pcf_outputs[index].port[pin] = True
 
     # currently only the inputs
     def __pcf_pullup(self):
-        for pcf in self.pcfs[3:]:
+        for pcf in self.pcf_inputs
             for pin in range(0, 8):
                 pcf.port[pin] = True
 
@@ -44,7 +47,7 @@ class ArbiterIO:
         return False
 
     def read_pcf(self, pcf_index):
-        pcf = self.pcfs[pcf_index]
+        pcf = self.pcf_inputs[pcf_index]
         result = 0
         if not self.pcf_has_input(pcf):
             return result
@@ -64,7 +67,7 @@ class ArbiterIO:
             # print(f'{pin}: {pin_value}')
             output = not value & pin_value
             try:
-                self.pcfs[pcf_index].port[pin] = output
+                self.pcf_outputs[pcf_index].port[pin] = output
             except IOError:
                 print("IOError")
                 return False
