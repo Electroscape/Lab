@@ -15,6 +15,8 @@
 STB_MOTHER Mother;
 STB_MOTHER_IO MotherIO;
 
+int inc = 0;
+
 
 void setup() {
     Mother.begin();
