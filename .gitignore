@@ -15,4 +15,4 @@ ArbNew/.idea/
 **.mp4
 **.log
 **.pio
-
+**venv
