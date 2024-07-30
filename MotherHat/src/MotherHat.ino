@@ -27,18 +27,16 @@ void setup() {
 
 
 void loop() {
-    Mother.rs485PerformPoll();
-    delay(1000);
-            /*
-    Mother.relayWrite(REL_0_PIN, HIGH);
-    Mother.relayWrite(REL_1_PIN, HIGH);
-    Mother.relayWrite(REL_2_PIN, HIGH);
-    Mother.relayWrite(REL_3_PIN, HIGH);
-    Mother.relayWrite(REL_4_PIN, HIGH);
-    Mother.relayWrite(REL_5_PIN, HIGH);
-    Mother.relayWrite(REL_6_PIN, HIGH);
-    Mother.relayWrite(REL_7_PIN, HIGH);
-    */
+    // Mother.rs485PerformPoll();
+    // Mother.motherRelay.digitalWrite()
+    MotherIO.setOuput(1 << inc);
+
+    int res = MotherIO.getInputs();
+    Serial.println(res);
+    inc++;
+    if (inc > 8) {
+        inc = 0;
+    }
 
     delay(1000);
 }
